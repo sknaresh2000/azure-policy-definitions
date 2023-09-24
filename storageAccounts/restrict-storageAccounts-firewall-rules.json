@@ -2,43 +2,59 @@
     "type": "Microsoft.Authorization/policyDefinitions",
     "name": "restrict-storageAccount-firewall-rules",  
     "properties": {
-      "displayName": "Restrict Storage Accounts firewall rules",
-      "description": "This policy restrict IP ranges used in Storage Accounts firewall rules",
-      "metadata": {
-        "category": "Storage"
-      },
-      "parameters": {
-          "allowedAddressRanges": {
-              "type": "array",
-              "metadata": {
-                  "description": "The list of allowed CIDR ranges",
-                  "displayName": "Address Range"
-              }
-          }
-      },
-	  "mode": "Indexed",
-      "policyRule": {
-          "if": {
-            "allOf": [
-              {
-                "field": "type",
-                "equals": "Microsoft.Storage/storageAccounts"
-              },
-              {
-                "field": "Microsoft.Storage/storageAccounts/networkAcls.ipRules[*].value",
-                "notEquals": ""
-              },
-              {
-                "not":{
-                    "field": "Microsoft.Storage/storageAccounts/networkAcls.ipRules[*].value",
-                    "in": "[parameters('allowedAddressRanges')]"
+        "displayName": "Restrict Storage Accounts firewall rules",
+        "description": "This policy restrict IP ranges used in Storage Accounts firewall rules",
+        "metadata": {
+            "category": "Storage"
+        },
+        "parameters": {
+            "allowedAddressRanges": {
+                "type": "array",
+                "metadata": {
+                    "description": "The list of allowed CIDR ranges",
+                    "displayName": "Address Range"
                 }
-              }
+            }
+        },
+        "mode": "Indexed",
+        "policyRule": {
+            "if": {
+            "anyOf": [
+                {
+                    "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Storage/storageAccounts"
+                    },
+                    {
+                        "field": "Microsoft.Storage/storageAccounts/networkAcls.ipRules[*].value",
+                        "notEquals": ""
+                    },
+                    {
+                        "not": {
+                            "field": "Microsoft.Storage/storageAccounts/networkAcls.ipRules[*].value",
+                            "in": "[parameters('allowedAddressRanges')]"
+                        }
+                    }
+                ]
+            },
+            {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Storage/storageAccounts"
+                    },
+                    {
+                        "field": "Microsoft.Storage/storageAccounts/networkAcls.defaultAction",
+                        "equals": "Allow"
+                    }
+                ]
+            }
             ]
-          },
-          "then": {
+        },
+        "then": {
             "effect": "deny"
-          }
         }
-      }
-  }
+    }
+    }
+}
