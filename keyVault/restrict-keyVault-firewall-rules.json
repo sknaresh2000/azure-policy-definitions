@@ -1,0 +1,56 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "restrict-keyVault-firewall-rules",  
+    "properties": {
+        "displayName": "Restrict Key Vault firewall rules",
+        "description": "This policy restrict IP ranges used in Key Vault firewall rules",
+        "metadata": {
+        "category": "KeyVault"
+        },
+        "parameters": {
+            "allowedAddressRanges": {
+                "type": "array",
+                "metadata": {
+                    "description": "The list of allowed CIDR ranges",
+                    "displayName": "Address Range"
+                }
+            }
+        },
+	    "mode": "Indexed",
+        "policyRule": {
+            "if": {
+                "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.KeyVault/vaults"
+                },
+                {
+                    "field": "Microsoft.KeyVault/vaults/networkAcls.ipRules[*].value",
+                    "notEquals": ""
+                },
+                {
+                    "not": {
+                        "field": "Microsoft.KeyVault/vaults/networkAcls.ipRules[*].value",
+                        "in": "[parameters('allowedAddressRanges')]"
+                    }
+                },
+                {
+                    "anyOf": [
+                    {
+                        "field": "Microsoft.KeyVault/vaults/networkAcls.defaultAction",
+                        "equals": "Allow"
+                    },
+                    {
+                        "field": "Microsoft.KeyVault/vaults/publicNetworkAccess",
+                        "equals": "Enabled"
+                    }
+                    ]
+                }
+                ]
+            },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+}
