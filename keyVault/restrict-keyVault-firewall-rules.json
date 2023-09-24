@@ -19,30 +19,34 @@
 	    "mode": "Indexed",
         "policyRule": {
             "if": {
-                "allOf": [
+                "anyOf": [
                 {
-                    "field": "type",
-                    "equals": "Microsoft.KeyVault/vaults"
-                },
-                {
-                    "field": "Microsoft.KeyVault/vaults/networkAcls.ipRules[*].value",
-                    "notEquals": ""
-                },
-                {
-                    "not": {
+                    "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.KeyVault/vaults"
+                    },
+                    {
                         "field": "Microsoft.KeyVault/vaults/networkAcls.ipRules[*].value",
-                        "in": "[parameters('allowedAddressRanges')]"
+                        "notEquals": ""
+                    },
+                    {
+                        "not": {
+                            "field": "Microsoft.KeyVault/vaults/networkAcls.ipRules[*].value",
+                            "in": "[parameters('allowedAddressRanges')]"
+                        }
                     }
+                    ]
                 },
                 {
-                    "anyOf": [
+                    "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.KeyVault/vaults"
+                    },
                     {
                         "field": "Microsoft.KeyVault/vaults/networkAcls.defaultAction",
                         "equals": "Allow"
-                    },
-                    {
-                        "field": "Microsoft.KeyVault/vaults/publicNetworkAccess",
-                        "equals": "Enabled"
                     }
                     ]
                 }
@@ -51,6 +55,6 @@
             "then": {
                 "effect": "deny"
             }
-        }
+        } 
     }
 }
