@@ -16,7 +16,7 @@
                 }
             }
         },
-	    "mode": "Indexed",
+        "mode": "Indexed",
         "policyRule": {
             "if": {
                 "anyOf": [
