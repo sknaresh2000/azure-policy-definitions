@@ -1,0 +1,82 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "restrict-appServices-firewall-rules",
+    "properties": {
+        "displayName": "Restrict App Services firewall rules",
+        "description": "This policy restrict IP ranges used in App Services firewall rules",
+        "metadata": {
+            "category": "AppServices"
+        },
+        "parameters": {
+            "allowedAddressRanges": {
+                "type": "array",
+                "metadata": {
+                    "description": "The list of allowed CIDR ranges",
+                    "displayName": "Address Range"
+                }
+            }
+        },
+        "mode": "Indexed",
+        "policyRule": {
+            "if": {
+                "anyOf": [
+                    {
+                        "allOf": [
+                            {
+                                "field": "type",
+                                "equals": "Microsoft.web/Sites/config"
+                            },
+                            {
+                                "field": "Microsoft.web/Sites/config/ipSecurityRestrictions[*].ipAddress",
+                                "notEquals": ""
+                            },
+                            {
+                                "not": {
+                                    "field": "Microsoft.web/Sites/config/ipSecurityRestrictions[*].ipAddress",
+                                    "in": "[parameters('allowedAddressRanges')]"
+                                }
+                            },
+                            {
+                                "field": "Microsoft.web/Sites/config/scmIpSecurityRestrictions[*].ipAddress",
+                                "notEquals": ""
+                            },
+                            {
+                                "anyOf": [
+                                    {
+                                        "field": "Microsoft.web/Sites/config/scmIpSecurityRestrictionsUseMain",
+                                        "notEquals": true
+                                    },
+                                    {
+                                        "not": {
+                                            "field": "Microsoft.web/Sites/config/scmIpSecurityRestrictions[*].ipAddress",
+                                            "in": "[parameters('allowedAddressRanges')]"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "allOf": [
+                            {
+                                "field": "type",
+                                "equals": "Microsoft.web/Sites/config"
+                            },
+                            {
+                                "field": "Microsoft.web/Sites/config/ipSecurityRestrictionsDefaultAction",
+                                "equals": "Allow"
+                            },
+                            {
+                                "field": "Microsoft.web/Sites/config/scmIpSecurityRestrictionsDefaultAction",
+                                "equals": "Allow"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+}

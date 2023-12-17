@@ -1,0 +1,81 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "anyOf": [
+                {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Network/routeTables"
+                        },
+                        {
+                            "count": {
+                                "field": "Microsoft.Network/routeTables/routes[*]",
+                                "where": {
+                                    "allOf": [
+                                        {
+                                            "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                                            "in": [
+                                                "Internet",
+                                                "VirtualAppliance"
+                                            ]
+                                        },
+                                        {
+                                            "anyOf": [
+                                                {
+                                                    "not": {
+                                                        "value": "[take(current('Microsoft.Network/routeTables/routes[*].addressPrefix'),3)]",
+                                                        "matchInsensitively": "???"
+                                                    }
+                                                },
+                                                {
+                                                    "value": "[current('Microsoft.Network/routeTables/routes[*].addressPrefix')]",
+                                                    "like": "AzureCloud*"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "greater": 0
+                        }
+                    ]
+                },
+                {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Network/routeTables/routes"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "not": {
+                                        "value": "[take(field('Microsoft.Network/routeTables/routes/addressPrefix'),3)]",
+                                        "matchInsensitively": "???"
+                                    }
+                                },
+                                {
+                                    "value": "[field('Microsoft.Network/routeTables/routes/addressPrefix')]",
+                                    "like": "AzureCloud*"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "Microsoft.Network/routeTables/routes/nextHopType",
+                            "in": [
+                                "Internet",
+                                "VirtualAppliance"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "then": {
+            "effect": "deny"
+        }
+    },
+    "parameters": {}
+}
