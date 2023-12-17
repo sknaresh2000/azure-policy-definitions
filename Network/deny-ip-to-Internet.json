@@ -30,10 +30,8 @@
                           }
                         },
                         {
-                          "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
-                          "in": [
-                            "AzureCloud"
-                          ]
+                          "value": "[current('Microsoft.Network/routeTables/routes[*].addressPrefix')]",
+                          "like": "AzureCloud*"
                         }
                       ]
                     }
@@ -59,10 +57,8 @@
                   }
                 },
                 {
-                  "field": "Microsoft.Network/routeTables/routes/addressPrefix",
-                  "in": [
-                    "AzureCloud"
-                  ]
+                  "value": "[field('Microsoft.Network/routeTables/routes/addressPrefix')]",
+                  "like": "AzureCloud*"
                 }
               ]
             },
