@@ -1,0 +1,138 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/virtualNetworks/subnets"
+                },
+                {
+                    "field": "name",
+                    "in": [
+                        "AppGatewaySubnet"
+                    ]
+                },
+                {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
+                    "exists": "true"
+                },
+                {
+                    "count": {
+                        "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
+                        "where": {
+                            "value": "[split(current('Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id'), '/')[8]]",
+                            "notEquals": "frontendIpConfigurations"
+                        }
+                    },
+                    "greater": 0
+                }
+            ]
+        },
+        "then": {
+            "effect": "deployIfNotExists",
+            "details": {
+                "name": "[if(empty(field('Microsoft.Network/virtualNetworks/subnets/routeTable.id')), 'null', last(split(field('Microsoft.Network/virtualNetworks/subnets/routeTable.id'),'/')))]",
+                "resourcegroupname": "[if(empty(field('Microsoft.Network/virtualNetworks/subnets/routeTable.id')),resourcegroup().name, string(first(skip(split(field('Microsoft.Network/virtualNetworks/subnets/routeTable.id'),'/'),4))))]",
+                "type": "Microsoft.Network/routeTables",
+                "existenceCondition": {
+                    "count": {
+                        "field": "Microsoft.Network/routeTables/routes[*]",
+                        "where": {
+                            "allOf": [
+                                {
+                                    "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                                    "equals": "0.0.0.0/0"
+                                },
+                                {
+                                    "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                                    "equals": "None"
+                                }
+                            ]
+                        }
+                    },
+                    "greater": 0
+                },
+                "roleDefinitionIds": [
+                    "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+                ],
+                "deployment": {
+                    "properties": {
+                        "mode": "Incremental",
+                        "template": {
+                            "parameters": {
+                                "location": {
+                                    "type": "string"
+                                },
+                                "routeTableName": {
+                                    "type": "string"
+                                },
+                                "subnetFullName": {
+                                    "type": "string"
+                                },
+                                "resourcegroup": {
+                                    "type": "string"
+                                },
+                                "subnetAddressPrefix": {
+                                    "type": "string"
+                                }
+                            },
+                            "resources": [
+                                {
+                                    "type": "Microsoft.Network/routeTables",
+                                    "apiVersion": "2020-05-01",
+                                    "name": "[parameters('routeTableName')]",
+                                    "location": "[parameters('location')]",
+                                    "properties": {
+                                        "routes": [
+                                            {
+                                                "name": "Internet",
+                                                "properties": {
+                                                    "addressPrefix": "0.0.0.0/0",
+                                                    "nextHopType": "None"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "type": "Microsoft.Network/virtualNetworks/subnets",
+                                    "apiVersion": "2020-05-01",
+                                    "name": "[parameters('subnetFullName')]",
+                                    "dependsOn": [
+                                        "[resourceId('Microsoft.Network/routeTables', parameters('routeTableName'))]"
+                                    ],
+                                    "properties": {
+                                        "addressPrefix": "[parameters('subnetAddressPrefix')]",
+                                        "routeTable": {
+                                            "id": "[resourceId('Microsoft.Network/routeTables', parameters('routeTableName'))]"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "location": {
+                                "type": "[field('location')]"
+                            },
+                            "routeTableName": {
+                                "type": "[concat('rt-', field('name'))]"
+                            },
+                            "subnetFullName": {
+                                "type": "[field('FullName')]"
+                            },
+                            "resourcegroup": {
+                                "type": "[resourcegroup().name]"
+                            },
+                            "subnetAddressPrefix": {
+                                "type": "[field('Microsoft.Network/virtualNetworks/subnets/addressPrefix')]"
+                            }
+                        },
+                        "resourceGroupName": "[resourcegroup().name]"
+                    }
+                }
+            }
+        }
+    },
+    "parameters": {}
+}
