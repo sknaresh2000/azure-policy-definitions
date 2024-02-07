@@ -1,0 +1,106 @@
+{
+    "properties": {
+      "displayName": "Cognitive-SMI",
+      "policyType": "Custom",
+      "mode": "All",
+      "metadata": {
+      },
+      "parameters": {},
+      "policyRule": {
+        "if": {
+          "allOf": [
+            {
+              "field": "type",
+              "equals": "Microsoft.CognitiveServices/accounts"
+            }
+          ]
+        },
+        "then": {
+          "effect": "DeployIfNotExists",
+          "details": {
+            "type": "Microsoft.CognitiveServices/accounts",
+            "name": "[field('name')]",
+            "existenceCondition": {
+              "allOf": [
+                {
+                  "field": "identity.type",
+                  "exists": "true"
+                },
+                {
+                  "field": "identity.type",
+                  "equals": "SystemAssigned"
+                }
+              ]
+            },
+            "roleDefinitionIds": [
+              "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+            ],
+            "deployment": {
+              "properties": {
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "name": {
+                      "type": "String"
+                    },
+                    "location": {
+                      "type": "String"
+                    },
+                    "kind": {
+                      "type": "String"
+                    },
+                    "customSubDomainName": {
+                      "type": "String"
+                    },
+                    "sku": {
+                      "type": "String"
+                    }
+                  },
+                  "variables": {},
+                  "resources": [
+                    {
+                      "type": "Microsoft.CognitiveServices/accounts",
+                      "name": "[parameters('name')]",
+                      "kind": "[parameters('kind')]",
+                      "location": "[parameters('location')]",
+                      "apiVersion": "2023-05-01",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "sku": {
+                        "name": "[parameters('sku')]"
+                      },
+                      "properties": {
+                        "customSubDomainName": "[parameters('customSubDomainName')]"
+                      }
+                    }
+                  ]
+                },
+                "parameters": {
+                  "name": {
+                    "value": "[field('name')]"
+                  },
+                  "location": {
+                    "value": "[field('location')]"
+                  },
+                  "kind": {
+                    "value": "[field('kind')]"
+                  },
+                  "customSubDomainName": {
+                    "value": "[field('Microsoft.CognitiveServices/accounts/customSubDomainName')]"
+                  },
+                  "sku": {
+                    "value": "[field('Microsoft.CognitiveServices/accounts/sku.name')]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "deploy-managed-identity"
+  }
