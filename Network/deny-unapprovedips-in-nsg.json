@@ -1,0 +1,103 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/networkSecurityGroups/securityRules"
+                },
+                {
+                    "anyOf": [
+                        {
+                            "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+                            "in": [
+                                "*",
+                                "Internet"
+                            ]
+                        },
+                        {
+                            "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+                            "in": [
+                                "*",
+                                "Internet"
+                            ]
+                        },
+                        {
+                            "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+                            "like": "AzureCloud*"
+                        },
+                        {
+                            "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+                            "like": "AzureCloud*"
+                        },
+                        {
+                            "count": {
+                                "value": "[parameters('allowedIPRanges')]",
+                                "name": "allowedIPRanges",
+                                "where": {
+                                    "value": "[ipRangeContains(current('allowedIPRanges'), if(or(greaterOrEquals(first(field('Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix')), 'a'),empty(field('Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix'))),current('allowedIPRanges'),field('Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix')))]",
+                                    "equals": true
+                                }
+                            },
+                            "equals": 0
+                        },
+                        {
+                            "count": {
+                                "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+                                "where": {
+                                    "count": {
+                                        "value": "[parameters('allowedIPRanges')]",
+                                        "name": "allowedIPRanges",
+                                        "where": {
+                                            "value": "[ipRangeContains(current('allowedIPRanges'), current('Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]'))]",
+                                            "equals": true
+                                        }
+                                    },
+                                    "equals": 0
+                                }
+                            },
+                            "greater": 0
+                        }
+                    ]
+                },
+                {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules/access",
+                    "equals": "Allow"
+                },
+                {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules/direction",
+                    "equals": "Inbound"
+                }
+            ]
+        },
+        "then": {
+            "effect": "[parameters('effect')]"
+        }
+    },
+    "parameters": {
+        "effect": {
+            "type": "String",
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Deny, Audit or Disabled the execution of the Policy"
+            },
+            "allowedValues": [
+                "Deny",
+                "Audit",
+                "Disabled"
+            ],
+            "defaultValue": "Deny"
+        },
+        "allowedIPRanges": {
+            "type": "Array",
+            "metadata": {
+                "displayName": "AllowedIPranges",
+                "description": "Allowed IP CIDR ranges"
+            },
+            "defaultValue": [
+                "10.0.0.0/8"
+            ]
+        }
+    }
+}
