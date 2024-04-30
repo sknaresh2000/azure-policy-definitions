@@ -1,0 +1,103 @@
+{
+    "properties": {
+        "displayName": "PublicAccessDeny-WithTags",
+        "policyType": "Custom",
+        "mode": "All",
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Audit",
+                    "Deny",
+                    "Disabled"
+                ],
+                "defaultValue": "Deny"
+            },
+            "tagName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Tag Name",
+                    "description": "Tag Name"
+                },
+                "allowedValues": [
+                    "FirewallAccess"
+                ],
+                "defaultValue": "FirewallAccess"
+            },
+            "tagAllowedValues": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Allowed values in tag",
+                    "description": "Allowed values in tag"
+                },
+                "allowedValues": [
+                    "Acknowledged"
+                ],
+                "defaultValue": [
+                    "Acknowledged"
+                ]
+            },
+            "subscriptiontagName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Tag Name",
+                    "description": "Tag Name"
+                },
+                "allowedValues": [
+                    "Environment"
+                ],
+                "defaultValue": "Environment"
+            },
+            "subscriptiontagAllowedValues": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Allowed values in tag",
+                    "description": "Allowed values in tag"
+                },
+                "allowedValues": [
+                    "Test"
+                ],
+                "defaultValue": [
+                    "Test"
+                ]
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "anyOf": [
+                            {
+                                "field": "[concat('tags[', parameters('tagName'), ']')]",
+                                "exists": false
+                            },
+                            {
+                                "field": "[concat('tags[', parameters('tagName'), ']')]",
+                                "notIn": "[parameters('tagAllowedValues')]"
+                            },
+                            {
+                                "value": "[subscription().tags[parameters('subscriptiontagName')]]",
+                                "notIn": "[parameters('subscriptiontagAllowedValues')]"
+                            }
+                        ]
+                    },
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Storage/storageAccounts"
+                    },
+                    {
+                        "field": "Microsoft.Storage/storageAccounts/publicNetworkAccess",
+                        "notEquals": "Disabled"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('effect')]"
+            }
+        }
+    }
+}
