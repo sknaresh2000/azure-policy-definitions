@@ -1,0 +1,25 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/routeTables/routes"
+                },
+                {
+                    "field": "Microsoft.Network/routeTables/routes/nextHopType",
+                    "equals": "None"
+                },
+                {
+                    "field": "Microsoft.Network/routeTables/routes/addressPrefix",
+                    "notEquals": "0.0.0.0/0"
+                }
+            ]
+        },
+        "then": {
+            "effect": "deny"
+        }
+    },
+    "parameters": {}
+}
