@@ -1,0 +1,45 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/azureFirewalls"
+                },
+                {
+                    "count": {
+                        "field": "Microsoft.Network/azureFirewalls/ipConfigurations[*]",
+                        "where": {
+                            "allOf": [
+                                {
+                                    "field": "Microsoft.Network/azureFirewalls/ipConfigurations[*].publicIPAddress.id",
+                                    "exists": true
+                                }
+                            ]
+                        }
+                    },
+                    "greater": 0
+                }
+            ]
+        },
+        "then": {
+            "effect": "[parameters('effect')]"
+        }
+    },
+    "parameters": {
+        "effect": {
+            "type": "String",
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Deny, Audit or Disabled the execution of the Policy"
+            },
+            "allowedValues": [
+                "Deny",
+                "Audit",
+                "Disabled"
+            ],
+            "defaultValue": "Deny"
+        }
+    }
+}

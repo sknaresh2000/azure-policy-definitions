@@ -1,0 +1,51 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/FirewallPolicies"
+                },
+                {
+                    "anyOf": [
+                        {
+                            "field": "Microsoft.Network/FirewallPolicies/threatIntelMode",
+                            "equals": "Off"
+                        },
+                        {
+                            "count": {
+                                "field": "Microsoft.Network/FirewallPolicies/threatIntelWhitelist.fqdns[*]"
+                            },
+                            "greater": 0
+                        },
+                        {
+                            "count": {
+                                "field": "Microsoft.Network/FirewallPolicies/threatIntelWhitelist.ipAddresses[*]"
+                            },
+                            "greater": 0
+                        }
+                    ]
+                }
+            ]
+        },
+        "then": {
+            "effect": "[parameters('effect')]"
+        }
+    },
+    "parameters": {
+        "effect": {
+            "type": "String",
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Deny, Audit or Disabled the execution of the Policy"
+            },
+            "allowedValues": [
+                "Deny",
+                "Audit",
+                "Disabled"
+            ],
+            "defaultValue": "Deny"
+        }
+    }
+}
