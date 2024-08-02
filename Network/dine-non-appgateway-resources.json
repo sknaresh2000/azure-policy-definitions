@@ -9,7 +9,9 @@
           },
           {
             "field": "name",
-            "equals": "AppGatewaySubnet"
+            "in": [
+              "AppGatewaySubnet"
+            ]
           },
           {
             "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
@@ -20,6 +22,12 @@
               "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]"
             },
             "greater": 0
+          },
+          {
+            "count": {
+              "field": "Microsoft.Network/virtualNetworks/subnets/applicationGatewayIPConfigurations[*]"
+            },
+            "equals": 0
           }
         ]
       },
@@ -71,6 +79,9 @@
                   },
                   "subnetAddressPrefix": {
                     "type": "string"
+                  },
+                  "nsgid": {
+                    "type": "string"
                   }
                 },
                 "resources": [
@@ -102,6 +113,9 @@
                       "addressPrefix": "[parameters('subnetAddressPrefix')]",
                       "routeTable": {
                         "id": "[resourceId('Microsoft.Network/routeTables',parameters('routeTableName'))]"
+                      },
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgid')]"
                       }
                     }
                   }
@@ -122,6 +136,9 @@
                 },
                 "subnetAddressPrefix": {
                   "value": "[field('Microsoft.Network/virtualNetworks/subnets/addressPrefix')]"
+                },
+                "nsgid": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id')]"
                 }
               },
               "resourceGroupName": "[resourcegroup().name]"
