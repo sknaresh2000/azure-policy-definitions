@@ -1,0 +1,93 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/virtualNetworks/subnets"
+                },
+                {
+                    "count": {
+                        "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
+                        "where": {
+                            "allOf": [
+                                {
+                                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
+                                    "contains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
+                                },
+                                {
+                                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
+                                    "contains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
+                                }
+                            ]
+                        }
+                    },
+                    "equals": 0
+                },
+                {
+                    "count": {
+                        "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
+                    },
+                    "greater": 0
+                }
+            ]
+        },
+        "then": {
+            "effect": "DeployIfNotExists",
+            "details": {
+                "type": "Microsoft.Network/virtualNetworks/subnets",
+                "name": "[field('name')]",
+                "existenceCondition": {
+                    "count": {
+                        "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
+                    },
+                    "equals": 0
+                },
+                "roleDefinitionIds": [
+                    "/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+                ],
+                "deployment": {
+                    "properties": {
+                        "mode": "incremental",
+                        "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                                "subnetName": {
+                                    "type": "string"
+                                }
+                            },
+                            "resources": [
+                                {
+                                    "type": "Microsoft.Network/virtualNetworks/subnets",
+                                    "apiVersion": "2023-11-01",
+                                    "name": "[parameters('subnetName')]",
+                                    "properties": {
+                                        "networkSecurityGroup": {
+                                            "id": "[field('Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id')]"
+                                        },
+                                        "routeTable": {
+                                            "id": "[field('Microsoft.Network/virtualNetworks/subnets/routeTable.id')]"
+                                        },
+                                        "addressPrefixes": "[field('Microsoft.Network/virtualNetworks/subnets/addressPrefixes')]",
+                                        "delegations": "[field('Microsoft.Network/virtualNetworks/subnets/delegations')]",
+                                        "privateEndpointNetworkPolicies": "[field('Microsoft.Network/virtualNetworks/subnets/privateEndpointNetworkPolicies')]",
+                                        "privateLinkServiceNetworkPolicies": "[field('Microsoft.Network/virtualNetworks/subnets/privateLinkServiceNetworkPolicies')]",
+                                        "serviceEndpoints": []
+                                    }
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "subnetName": {
+                                "value": "[field('name')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "parameters": {}
+}
