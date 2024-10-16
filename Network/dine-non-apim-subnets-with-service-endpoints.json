@@ -1,93 +1,139 @@
 {
     "mode": "All",
     "policyRule": {
-        "if": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks/subnets"
+          },
+          {
+            "count": {
+              "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
+              "where": {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
+                    "contains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
+                  },
+                  {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
+                    "contains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
+                  }
+                ]
+              }
+            },
+            "equals": 0
+          },
+          {
+            "count": {
+              "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
+            },
+            "greater": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "DeployIfNotExists",
+        "details": {
+          "type": "Microsoft.Network/virtualNetworks/subnets",
+          "name": "[field('fullName')]",
+          "existenceCondition": {
             "allOf": [
-                {
-                    "field": "type",
-                    "equals": "Microsoft.Network/virtualNetworks/subnets"
+              {
+                "count": {
+                  "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
                 },
-                {
-                    "count": {
-                        "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
-                        "where": {
-                            "allOf": [
-                                {
-                                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
-                                    "contains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
-                                },
-                                {
-                                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
-                                    "contains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
-                                }
-                            ]
-                        }
-                    },
-                    "equals": 0
-                },
-                {
-                    "count": {
-                        "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
-                    },
-                    "greater": 0
-                }
+                "equals": 0
+              }
             ]
-        },
-        "then": {
-            "effect": "DeployIfNotExists",
-            "details": {
-                "type": "Microsoft.Network/virtualNetworks/subnets",
-                "name": "[field('name')]",
-                "existenceCondition": {
-                    "count": {
-                        "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
-                    },
-                    "equals": 0
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "vnetName": {
+                    "type": "string"
+                  },
+                  "subnetName": {
+                    "type": "string"
+                  },
+                  "nsgId": {
+                    "type": "string"
+                  },
+                  "routeTableId": {
+                    "type": "string"
+                  },
+                  "addressPrefixes": {
+                    "type": "array"
+                  },
+                  "delegations": {
+                    "type": "array"
+                  },
+                  "privateEndpointNetworkPolicies": {
+                    "type": "string"
+                  },
+                  "privateLinkServiceNetworkPolicies": {
+                    "type": "string"
+                  }
                 },
-                "roleDefinitionIds": [
-                    "/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
-                ],
-                "deployment": {
+                "resources": [
+                  {
+                    "type": "Microsoft.Network/virtualNetworks/subnets",
+                    "apiVersion": "2024-01-01",
+                    "name": "[concat(parameters('vnetName'), '/', parameters('subnetName'))]",
                     "properties": {
-                        "mode": "incremental",
-                        "template": {
-                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                            "contentVersion": "1.0.0.0",
-                            "parameters": {
-                                "subnetName": {
-                                    "type": "string"
-                                }
-                            },
-                            "resources": [
-                                {
-                                    "type": "Microsoft.Network/virtualNetworks/subnets",
-                                    "apiVersion": "2023-11-01",
-                                    "name": "[parameters('subnetName')]",
-                                    "properties": {
-                                        "networkSecurityGroup": {
-                                            "id": "[field('Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id')]"
-                                        },
-                                        "routeTable": {
-                                            "id": "[field('Microsoft.Network/virtualNetworks/subnets/routeTable.id')]"
-                                        },
-                                        "addressPrefixes": "[field('Microsoft.Network/virtualNetworks/subnets/addressPrefixes')]",
-                                        "delegations": "[field('Microsoft.Network/virtualNetworks/subnets/delegations')]",
-                                        "privateEndpointNetworkPolicies": "[field('Microsoft.Network/virtualNetworks/subnets/privateEndpointNetworkPolicies')]",
-                                        "privateLinkServiceNetworkPolicies": "[field('Microsoft.Network/virtualNetworks/subnets/privateLinkServiceNetworkPolicies')]",
-                                        "serviceEndpoints": []
-                                    }
-                                }
-                            ]
-                        },
-                        "parameters": {
-                            "subnetName": {
-                                "value": "[field('name')]"
-                            }
-                        }
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgId')]"
+                      },
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      },
+                      "addressPrefixes": "[parameters('addressPrefixes')]",
+                      "delegations": "[parameters('delegations')]",
+                      "privateEndpointNetworkPolicies": "[parameters('privateEndpointNetworkPolicies')]",
+                      "privateLinkServiceNetworkPolicies": "[parameters('privateLinkServiceNetworkPolicies')]",
+                      "serviceEndpoints": []
                     }
+                  }
+                ]
+              },
+              "parameters": {
+                "subnetName": {
+                  "value": "[field('name')]"
+                },
+                "vnetName": {
+                  "value": "[split(field('id'), '/')[8]]"
+                },
+                "nsgId": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id')]"
+                },
+                "routeTableId": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/routeTable.id')]"
+                },
+                "addressPrefixes": {
+                  "value": "[if(equals(field('Microsoft.Network/virtualNetworks/subnets/addressPrefixes'), ''), array(field('Microsoft.Network/virtualNetworks/subnets/addressPrefix')), field('Microsoft.Network/virtualNetworks/subnets/addressPrefixes'))]"
+                },
+                "delegations": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/delegations')]"
+                },
+                "privateEndpointNetworkPolicies": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/privateEndpointNetworkPolicies')]"
+                },
+                "privateLinkServiceNetworkPolicies": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/privateLinkServiceNetworkPolicies')]"
                 }
+              }
             }
+          }
         }
+      }
     },
     "parameters": {}
-}
+  }
