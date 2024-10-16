@@ -1,82 +1,78 @@
 {
-    "mode": "All",
-    "policyRule": {
-      "if": {
-        "allOf": [
-          {
-            "field": "type",
-            "equals": "Microsoft.Network/virtualNetworks/subnets"
-          },
-          {
-            "anyOf": [
-              {
-                "count": {
-                  "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
-                  "where": {
-                    "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
-                    "notin": [
-                      "Microsoft.AzureActiveDirectory",
-                      "Microsoft.KeyVault",
-                      "Microsoft.Storage",
-                      "Microsoft.Sql"
-                    ]
-                  }
-                },
-                "greater": 0
-              },
-              {
-                "allOf": [
-                  {
-                    "count": {
-                      "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
-                      "where": {
-                        "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
-                        "equals": "Microsoft.AzureActiveDirectory"
-                      }
-                    },
-                    "equals": 1
-                  },
-                  {
-                    "count": {
-                      "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
-                      "where": {
-                        "anyOf": [
-                          {
-                            "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
-                            "notcontains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
-                          },
-                          {
-                            "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
-                            "notcontains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
-                          }
-                        ]
-                      }
-                    },
-                    "greater": 0
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "then": {
-        "effect": "[parameters('effect')]"
-      }
-    },
-    "parameters": {
-      "effect": {
-        "type": "String",
-        "metadata": {
-          "displayName": "Effect",
-          "description": "Enable or disable the execution of the policy"
+  "mode": "All",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Network/virtualNetworks/subnets"
         },
-        "allowedValues": [
-          "Audit",
-          "Deny",
-          "Disabled"
-        ],
-        "defaultValue": "Deny"
-      }
+        {
+          "anyOf": [
+            {
+              "count": {
+                "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
+                "where": {
+                  "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
+                  "notin": [
+                    "Microsoft.AzureActiveDirectory",
+                    "Microsoft.KeyVault",
+                    "Microsoft.Storage",
+                    "Microsoft.Sql"
+                  ]
+                }
+              },
+              "greater": 0
+            },
+            {
+              "allOf": [
+                {
+                  "count": {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
+                    "where": {
+                      "anyOf": [
+                        {
+                          "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
+                          "notcontains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
+                        },
+                        {
+                          "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
+                          "notcontains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
+                        }
+                      ]
+                    }
+                  },
+                  "greater": 0
+                },
+                {
+                  "count": {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*]"
+                  },
+                  "equals": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]"
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "Audit",
+        "Deny",
+        "Disabled"
+      ],
+      "defaultValue": "Deny"
     }
   }
+}
