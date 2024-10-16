@@ -11,25 +11,31 @@
             "count": {
               "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
               "where": {
-                "allOf": [
+                "anyOf": [
                   {
                     "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
-                    "contains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
+                    "notcontains": "/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/GWHOST/"
                   },
                   {
                     "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*].id",
-                    "contains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
+                    "notcontains": "providers/Microsoft.Network/loadBalancers/gwhostlbsd/frontendIPConfigurations/LoadBalancerFrontEnd"
                   }
                 ]
               }
             },
-            "equals": 0
+            "greater": 0
           },
           {
             "count": {
               "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]"
             },
             "greater": 0
+          },
+          {
+            "count": {
+              "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*]"
+            },
+            "equals": 0
           }
         ]
       },
