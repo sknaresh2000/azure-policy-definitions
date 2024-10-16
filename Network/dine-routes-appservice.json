@@ -1,0 +1,78 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/virtualNetworks/subnets"
+                },
+                {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*].serviceName",
+                    "equals": "Microsoft.Web"
+                },
+                {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/routeTable.id",
+                    "exists": true
+                }
+            ]
+        },
+        "then": {
+            "effect": "DeployIfNotExists",
+            "details": {
+                "type": "Microsoft.Network/routeTables",
+                "existenceCondition": {
+                    "allOf": [
+                        {
+                            "field": "Microsoft.Network/routeTables/routes[*].addressPrefix",
+                            "equals": "0.0.0.0/0" 
+                        },
+                        {
+                            "field": "Microsoft.Network/routeTables/routes[*].nextHopType",
+                            "equals": "None"
+                        }
+                    ]
+                },
+                "roleDefinitionIds": [
+                    "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c" 
+                ],
+                "deployment": {
+                    "properties": {
+                        "mode": "incremental",
+                        "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                                "routeTableName": {
+                                    "type": "string"
+                                },
+                                "routeName": {
+                                    "type": "string"
+                                }
+                            },
+                            "resources": [
+                                {
+                                    "type": "Microsoft.Network/routeTables/routes",
+                                    "apiVersion": "2022-01-01",
+                                    "name": "[concat(parameters('routeTableName'), '/', parameters('routeName'))]",
+                                    "properties": {
+                                        "addressPrefix": "0.0.0.0/0", 
+                                        "nextHopType": "None"
+                                    }
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "routeTableName": {
+                                "value": "[split(field('Microsoft.Network/virtualNetworks/subnets/routeTable.id'), '/')[8]]" 
+                            },
+                            "routeName": {
+                                "value": "myRoute" 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
