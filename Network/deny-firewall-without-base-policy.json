@@ -15,7 +15,7 @@
                         },
                         {
                             "value": "[if(empty(coalesce(field('Microsoft.Network/firewallPolicies/basePolicy.id'))), '', split(field('Microsoft.Network/firewallPolicies/basePolicy.id'),'/')[2])]",
-                            "notEquals": "8ef5de46-f9bc-4c09-9d3a-8169b611cd76"
+                            "notEquals": "xxx-xxxx-xxxx-xxx"
                         }
                     ]
                 }
