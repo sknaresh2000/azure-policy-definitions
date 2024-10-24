@@ -1,0 +1,43 @@
+{
+    "mode": "All",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Network/firewallPolicies"
+                },
+                {
+                    "anyOf": [
+                        {
+                            "field": "Microsoft.Network/firewallPolicies/basePolicy.id",
+                            "exists": "false"
+                        },
+                        {
+                            "value": "[if(empty(coalesce(field('Microsoft.Network/firewallPolicies/basePolicy.id'))), '', split(field('Microsoft.Network/firewallPolicies/basePolicy.id'),'/')[2])]",
+                            "notEquals": "8ef5de46-f9bc-4c09-9d3a-8169b611cd76"
+                        }
+                    ]
+                }
+            ]
+        },
+        "then": {
+            "effect": "[parameters('effect')]"
+        }
+    },
+    "parameters": {
+        "effect": {
+            "type": "String",
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Deny, Audit or Disabled the execution of the Policy"
+            },
+            "allowedValues": [
+                "Deny",
+                "Audit",
+                "Disabled"
+            ],
+            "defaultValue": "Deny"
+        }
+    }
+}
