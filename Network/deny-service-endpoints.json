@@ -28,6 +28,51 @@
               "allOf": [
                 {
                   "count": {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
+                    "where": {
+                      "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
+                      "in": [
+                        "Microsoft.AzureActiveDirectory"
+                      ]
+                    }
+                  },
+                  "greater": 0
+                },
+                {
+                  "count": {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*]",
+                    "where": {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*].serviceName",
+                          "notequals": "Microsoft.Web/serverFarms"
+                        }
+                      ]
+                    }
+                  },
+                  "greater": 0
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "count": {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
+                    "where": {
+                      "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
+                      "in": [
+                        "Microsoft.AzureActiveDirectory",
+                        "Microsoft.KeyVault",
+                        "Microsoft.Storage",
+                        "Microsoft.Sql"
+                      ]
+                    }
+                  },
+                  "greater": 0
+                },
+                {
+                  "count": {
                     "field": "Microsoft.Network/virtualNetworks/subnets/ipConfigurations[*]",
                     "where": {
                       "anyOf": [
@@ -43,12 +88,36 @@
                     }
                   },
                   "greater": 0
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "count": {
+                    "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
+                    "where": {
+                      "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
+                      "notin": [
+                        "Microsoft.AzureActiveDirectory"
+                      ]
+                    }
+                  },
+                  "greater": 0
                 },
                 {
                   "count": {
-                    "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*]"
+                    "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*]",
+                    "where": {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Network/virtualNetworks/subnets/delegations[*].serviceName",
+                          "equals": "Microsoft.Web/serverFarms"
+                        }
+                      ]
+                    }
                   },
-                  "equals": 0
+                  "equals": 1
                 }
               ]
             }
