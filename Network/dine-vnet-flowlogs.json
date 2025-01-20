@@ -185,8 +185,8 @@
                 "assignPermissions": true
             },
             "defaultValue": {
-                "eastus": "/subscriptions/8ef5de46-f9bc-4c09-9d3a-8169b611cd76/resourceGroups/TESTSA/providers/Microsoft.Storage/storageAccounts/eastusdfdffd",
-                "westus": "/subscriptions/8ef5de46-f9bc-4c09-9d3a-8169b611cd76/resourceGroups/aiservices/providers/Microsoft.Storage/storageAccounts/westusfdgdf"
+                "eastus": "",
+                "westus": ""
             }
         },
         "timeInterval": {
