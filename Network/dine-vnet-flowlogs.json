@@ -33,6 +33,10 @@
                             ]
                         },
                         {
+                            "contains": "[field('Microsoft.Network/networkWatchers/flowLogs/storageId')]",
+                            "value": "[concat('/',string(parameters('storageId')),'\"')]"
+                        },
+                        {
                             "field": "Microsoft.Network/networkWatchers/flowLogs/flowAnalyticsConfiguration.networkWatcherFlowAnalyticsConfiguration.workspaceResourceId",
                             "equals": "[parameters('workspaceResourceId')]"
                         }
