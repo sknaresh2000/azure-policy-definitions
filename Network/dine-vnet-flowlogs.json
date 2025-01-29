@@ -33,8 +33,8 @@
                             ]
                         },
                         {
-                            "contains": "[field('Microsoft.Network/networkWatchers/flowLogs/storageId')]",
-                            "value": "[string(parameters('storageId'))]"
+                            "value": "[string(parameters('storageId'))]",
+                            "contains": "[field('Microsoft.Network/networkWatchers/flowLogs/storageId')]"
                         },
                         {
                             "field": "Microsoft.Network/networkWatchers/flowLogs/flowAnalyticsConfiguration.networkWatcherFlowAnalyticsConfiguration.workspaceResourceId",
