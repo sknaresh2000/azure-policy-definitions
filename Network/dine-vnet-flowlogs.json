@@ -33,12 +33,16 @@
                             ]
                         },
                         {
-                            "value": "[string(parameters('storageId'))]",
-                            "contains": "[field('Microsoft.Network/networkWatchers/flowLogs/storageId')]"
+                            "field": "['Microsoft.Network/networkWatchers/flowLogs/storageId']",
+                            "equals": "[parameters('storageId')[field('location')]]"
                         },
                         {
                             "field": "Microsoft.Network/networkWatchers/flowLogs/flowAnalyticsConfiguration.networkWatcherFlowAnalyticsConfiguration.workspaceResourceId",
                             "equals": "[parameters('workspaceResourceId')]"
+                        },
+                        {
+                            "field": "Microsoft.Network/networkWatchers/flowLogs/provisioningState",
+                            "equals": "Succeeded"
                         }
                     ]
                 },
@@ -184,13 +188,12 @@
             "type": "Object",
             "metadata": {
                 "displayName": "Storage Account",
-                "description": "The resource id of storage account where flowlogs will be sent to. It will be used for deployment purposes only. Make sure this storage account is located in the same region as the Vnet.",
-                "strongType": "Microsoft.Storage/storageAccounts",
-                "assignPermissions": true
+                "description": "The resource id of storage account where flowlogs will be sent to. It will be used for deployment purposes only. Make sure this storage account is located in the same region as the Vnet."
             },
             "defaultValue": {
                 "eastus": "",
-                "westus": ""
+                "westus": "",
+                "disabled": ""
             }
         },
         "timeInterval": {
@@ -210,8 +213,7 @@
             "metadata": {
                 "displayName": "Workspace Resource ID",
                 "description": "Log Analytics workspace resource id",
-                "strongType": "Microsoft.OperationalInsights/workspaces",
-                "assignPermissions": true
+                "strongType": "Microsoft.OperationalInsights/workspaces"
             }
         },
         "workspaceRegion": {
