@@ -13,8 +13,14 @@
                         "where": {
                             "allOf": [
                                 {
-                                    "field": "Microsoft.Network/firewallPolicies/ruleCollectionGroups/ruleCollections[*].FirewallPolicyFilterRuleCollection.rules[*].ruleType",
-                                    "equals": "NatRule"
+                                    "field": "Microsoft.Network/firewallPolicies/ruleCollectionGroups/ruleCollections[*].ruleCollectionType",
+                                    "equals": "FirewallPolicyNatRuleCollection"
+                                },
+                                {
+                                    "count": {
+                                        "field": "Microsoft.Network/firewallPolicies/ruleCollectionGroups/ruleCollections[*].FirewallPolicyNatRuleCollection.rules[*]"
+                                    },
+                                    "greater": 0
                                 }
                             ]
                         }
